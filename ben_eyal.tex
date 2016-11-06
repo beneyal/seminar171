@@ -11,10 +11,22 @@
 \usetheme{Darmstadt}
 \usefonttheme{professionalfonts}
 
+\AtBeginSubsection[]
+{
+    \begin{frame}<beamer>{Outline}
+        \tableofcontents[currentsection,currentsubsection]
+    \end{frame}
+}
+
 \begin{document}
 
-\frame{\titlepage}
-\frame{\tableofcontents}
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}{Outline}
+    \tableofcontents
+\end{frame}
 
 \section{Thoughts}
 \begin{frame}
