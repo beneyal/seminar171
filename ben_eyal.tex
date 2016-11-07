@@ -1,9 +1,9 @@
-%\documentclass{beamer}
-\documentclass[handout]{beamer}
+\documentclass{beamer}
+%\documentclass[handout]{beamer}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{tikz}
-\usetikzlibrary{bayesnet}
+%\usetikzlibrary{bayesnet}
 
 \title[]{Correctness of Local Probability Propagation\\in Graphical Models with Loops}
 \subtitle{by\\Yair Weiss}
@@ -29,22 +29,30 @@
     \tableofcontents
 \end{frame}
 
-\section{Thoughts}
-\begin{frame}
-    \begin{enumerate}
-        \item bayesian networks with no loops converge to correct posterior probability
-        \item empirical studies show that bayes nets with loops also converge
-        \item we don't know why it works in theory
-        \item certain single-looped bayes nets can provably be shown to converge
-        \item graphical model - lauritzen 1996
-        \item bayesian network, markov network
-        \item singly-connected networks - belief propagation, pearl 1988
-        \item BU - Belief Update, BR - Belief Revision, MM - Maximum Marginal, MAP - Maximum a Posteriori
-        \item explanation + example of belief update and belief revision on singly-connected markov net
-    \end{enumerate}
-\end{frame}
+%\section{Thoughts}
+%\begin{frame}
+%    \begin{enumerate}
+%        \item bayesian networks with no loops converge to correct posterior probability
+%        \item empirical studies show that bayes nets with loops also converge
+%        \item we don't know why it works in theory
+%        \item certain single-looped bayes nets can provably be shown to converge
+%        \item graphical model - lauritzen 1996
+%        \item bayesian network, markov network
+%        \item singly-connected networks - belief propagation, pearl 1988
+%        \item BU - Belief Update, BR - Belief Revision, MM - Maximum Marginal, MAP - Maximum a Posteriori
+%        \item explanation + example of belief update and belief revision on singly-connected markov net
+%    \end{enumerate}
+%\end{frame}
 \section{Introduction}
 \subsection{Definitions}
+\begin{frame}
+    \begin{itemize}
+        \item Correctness
+        \item Local Probability Propagation
+        \item \alert<2>{Graphical Models}
+        \item Loops
+    \end{itemize}
+\end{frame}
 \begin{frame}{Probabilistic Graphical Models}
     \pause
     \begin{definition}
@@ -79,6 +87,14 @@
         \end{column}
     \end{columns}
 \end{frame}
+\begin{frame}
+    \begin{itemize}
+        \item Correctness
+        \item \alert<2>{Local Probability Propagation}
+        \item \alert<1>{Graphical Models}
+        \item Loops
+    \end{itemize}
+\end{frame}
 \subsection{The Problem}
 \begin{frame}{Belief Propagation}
     content...
@@ -94,24 +110,8 @@
     \end{itemize}
 \end{frame}
 \section{Content}
-%\begin{frame}
-%    \begin{tikzpicture}
-%    
-%    % Define nodes
-%    \node[obs]                               (y) {$y$};
-%    \node[latent, above=of y, xshift=-1.2cm] (w) {$\mathbf{w}$};
-%    \node[latent, above=of y, xshift=1.2cm]  (x) {$\mathbf{x}$};
-%    \node[latent, right=2cm of y]            (t) {$\tau$};
-%    
-%    % Connect the nodes
-%    \edge {x,w,t} {y} ; %
-%    
-%    % Plates
-%    \plate {yx} {(x)(y)} {$N$} ;
-%    \plate {} {(w)(y)(yx.north west)(yx.south west)} {$M$} ;
-%    
-%    \end{tikzpicture}
-%\end{frame}
+\begin{frame}
+\end{frame}
 \section{Conclusion}
 \begin{frame}
 \end{frame}
