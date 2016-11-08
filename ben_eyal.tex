@@ -1,5 +1,5 @@
-\documentclass{beamer}
-%\documentclass[handout]{beamer}
+%\documentclass{beamer}
+\documentclass[handout]{beamer}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{tikz}
@@ -44,6 +44,16 @@
 %    \end{enumerate}
 %\end{frame}
 \section{Introduction}
+\subsection{Probability Refresher}
+\begin{frame}{Reminder}
+    \begin{block}{Conditional Probability}
+        \[ \Pr \left( A \mid B \right) = \frac{\Pr \left( A, B \right)}{\Pr \left( B \right)} \]
+    \end{block}
+    \begin{block}{Bayes' Theorem}
+        Bayes' theorem gives us the relation between the posterior probability, $ \Pr \left( A \mid B \right) $, and the prior probability, $ \Pr \left( A \right) $.
+        \[ \Pr \left( A \mid B \right) = \frac{\Pr \left( B \mid A \right) \Pr \left( A \right)}{\Pr \left( B \right)} \]
+    \end{block}
+\end{frame}
 \subsection{Definitions}
 \begin{frame}
     \begin{itemize}
@@ -59,12 +69,16 @@
         A Probabilistic Graphical Model (PGM) is a graph, either directed or undirected, in which the nodes correspond to random variables,
         and the edges correspond to direct probabilistic interactions between them.
     \end{definition}
+    \begin{block}{Agenda}
+        \pause
+        In this talk, we'll see how to use PGMs for the task of probabilistic inference.
+    \end{block}
 \end{frame}
 \begin{frame}{Probabilistic Graphical Models}
     \pause
     \begin{definition}
-        A Bayes network is a directed acyclic PGM whose edges could be seen as ``cause'' and ``effect'', e.g. an
-        edge $ X \rightarrow Y $ means that $ X $ directly influences $ Y $, or $ X $ is the cause of $ Y $.
+        A Bayes network is a directed acyclic PGM whose edges can be seen as ``cause'' and ``effect'', e.g. an
+        edge $ X \rightarrow Y $ means that $ X $ directly influences $ Y $, or ``$ X $ is the cause of $ Y $''.
     \end{definition}
     \pause
     \begin{center}
@@ -94,6 +108,9 @@
         \item \alert<1>{Graphical Models}
         \item Loops
     \end{itemize}
+\end{frame}
+\begin{frame}{Belief Propagation}
+    content...
 \end{frame}
 \subsection{The Problem}
 \begin{frame}{Belief Propagation}
