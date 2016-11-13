@@ -1,9 +1,11 @@
-%\documentclass{beamer}
-\documentclass[handout]{beamer}
+\documentclass{beamer}
+%\documentclass[handout]{beamer}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{tikz}
-%\usetikzlibrary{bayesnet}
+\usetikzlibrary{bayesnet}
+
+\mode<presentation>
 
 \title[]{Correctness of Local Probability Propagation\\in Graphical Models with Loops}
 \subtitle{by\\Yair Weiss}
@@ -25,52 +27,28 @@
     \titlepage
 \end{frame}
 
+\begin{frame}
+    \begin{block}{Disclaimer}
+        The notation used in this presentation is just one of several.\\
+        In your assigned papers, and other literature you may come across, you will most probably see different notation.\\ Therefore, in this talk, notation will be used sparingly, and always with a definition.
+    \end{block}
+\end{frame}
+
 \begin{frame}{Outline}
     \tableofcontents
 \end{frame}
 
-%\section{Thoughts}
-%\begin{frame}
-%    \begin{enumerate}
-%        \item bayesian networks with no loops converge to correct posterior probability
-%        \item empirical studies show that bayes nets with loops also converge
-%        \item we don't know why it works in theory
-%        \item certain single-looped bayes nets can provably be shown to converge
-%        \item graphical model - lauritzen 1996
-%        \item bayesian network, markov network
-%        \item singly-connected networks - belief propagation, pearl 1988
-%        \item BU - Belief Update, BR - Belief Revision, MM - Maximum Marginal, MAP - Maximum a Posteriori
-%        \item explanation + example of belief update and belief revision on singly-connected markov net
-%    \end{enumerate}
-%\end{frame}
+%%%%%%%%%%%% 1 INTRODUCTION %%%%%%%%%%%%
+
 \section{Introduction}
-\subsection{Probability Refresher}
-\begin{frame}{Reminder}
-    \begin{block}{Conditional Probability}
-        \[ \Pr \left( A \mid B \right) = \frac{\Pr \left( A, B \right)}{\Pr \left( B \right)} \]
-    \end{block}
-    \begin{block}{Bayes' Theorem}
-        Bayes' theorem gives us the relation between the posterior probability, $ \Pr \left( A \mid B \right) $, and the prior probability, $ \Pr \left( A \right) $.
-        \[ \Pr \left( A \mid B \right) = \frac{\Pr \left( B \mid A \right) \Pr \left( A \right)}{\Pr \left( B \right)} \]
-    \end{block}
-\end{frame}
-\begin{frame}{Reminder}
-    \begin{block}{Marginal Probability}
-        \[ \Pr \left( A \mid B \right) = \frac{\Pr \left( A, B \right)}{\Pr \left( B \right)} \]
-    \end{block}
-    \begin{block}{Bayes' Theorem}
-        Bayes' theorem gives us the relation between the posterior probability, $ \Pr \left( A \mid B \right) $, and the prior probability, $ \Pr \left( A \right) $.
-        \[ \Pr \left( A \mid B \right) = \frac{\Pr \left( B \mid A \right) \Pr \left( A \right)}{\Pr \left( B \right)} \]
-    \end{block}
-\end{frame}
+
+%%%%%%%%%%%% 1.1 DEFINITIONS %%%%%%%%%%%%
+
 \subsection{Definitions}
-\begin{frame}
-    \begin{itemize}
-        \item Correctness
-        \item Local Probability Propagation
-        \item \alert<2>{Graphical Models}
-        \item Loops
-    \end{itemize}
+\begin{frame}{Breaking Down the Title - Part I}
+    \begin{center}
+        \Large{Correctness of Local Probability Propagation in \alert<2>{Graphical Models} with Loops}
+    \end{center}
 \end{frame}
 \begin{frame}{Probabilistic Graphical Models}
     \pause
@@ -78,8 +56,8 @@
         A Probabilistic Graphical Model (PGM) is a graph, either directed or undirected, in which the nodes correspond to random variables,
         and the edges correspond to direct probabilistic interactions between them.
     \end{definition}
+    \pause
     \begin{block}{Agenda}
-        \pause
         In this talk, we'll see how to use PGMs for the task of probabilistic inference.
     \end{block}
 \end{frame}
@@ -91,7 +69,7 @@
     \end{definition}
     \pause
     \begin{center}
-        \includegraphics[scale=0.25]{bayesnet}
+        \includegraphics[scale=0.75]{burglary2}\\
     \end{center}
 \end{frame}
 \begin{frame}{Probabilistic Graphical Models}
@@ -110,36 +88,156 @@
         \end{column}
     \end{columns}
 \end{frame}
-\begin{frame}
-    \begin{itemize}
-        \item Correctness
-        \item \alert<2>{Local Probability Propagation}
-        \item \alert<1>{Graphical Models}
-        \item Loops
-    \end{itemize}
+\begin{frame}{Breaking Down the Title - Part II}
+    \begin{center}
+        \Large{Correctness of \alert<2>{Local Probability Propagation} in \alert<1>{Graphical Models} with Loops}
+    \end{center}
+\end{frame}
+\begin{frame}{Reminder}
+    \begin{block}{Conditional Probability}
+        \[ \Pr \left( A \mid B \right) = \frac{\Pr \left( A, B \right)}{\Pr \left( B \right)} \]
+    \end{block}
+    \pause
+    \begin{block}{Bayes' Theorem}
+        Bayes' theorem gives us the relation between the \alert{posterior~probability}, $ \Pr \left( A \mid B \right) $, and the \alert{prior probability}, $ \Pr \left( A \right) $.
+        \[ \Pr \left( A \mid B \right) = \frac{\Pr \left( B \mid A \right) \Pr \left( A \right)}{\Pr \left( B \right)} \]
+    \end{block}
+\end{frame}
+\begin{frame}{Reminder}
+    \pause
+    \begin{block}{Marginal Probability}
+        Given a joint probability distribution $ \Pr \left( X, Y \right) $,
+        \begin{align*}
+            \Pr \left( X = x \right) &= \sum_{y} \Pr \left( X = x, Y = y \right) \\
+                                     &= \sum_{y} \Pr \left( X = x \mid Y = y \right) \Pr \left( Y = y \right)
+        \end{align*}
+        is the \alert{marginal distribution} of $ X $.
+    \end{block}
+\end{frame}
+
+%%%%%%%%%%%% 1.? EXAMPLE? %%%%%%%%%%%%
+
+\begin{frame}{Belief Propagation}
+    \begin{definition}
+        Belief Propagation (Pearl, 1982) is an iterative message-passing algorithm used to perform inference on PGMs.\\
+        The algorithm gives exact marginals on polytrees (a directed graph with only a single path between any two nodes).
+    \end{definition}
+    \pause
+    \begin{figure}[h]
+        \centering
+        \begin{tikzpicture}
+            
+            % Nodes
+            
+            \node[obs, label=above:node 4] (y1) {$ y_{1} $};
+            \node[obs, right=2.5 of y1, label=above:node 5] (y2) {$ y_{2} $};
+            \node[obs, right=2.5 of y2, label=above:node 6] (y3) {$ y_{3} $};
+            \node[latent, below=of y1, label=below:node 1] (x1) {$ x_{1} $};
+            \node[latent, right=of x1, below=of y2, label=below:node 2] (x2) {$ x_{2} $};
+            \node[latent, right=of x2, below=of y3, label=below:node 3] (x3) {$ x_{3} $};
+            
+            % Message Labels
+            
+            \draw (y1) -- (x1) node [midway, right, fill=white] {$ \downarrow m_{41} \left( x_{1} \right) $};
+            \draw (y2) -- (x2) node [midway, right, fill=white] {$ \downarrow m_{52} \left( x_{2} \right) $};
+            \draw (y3) -- (x3) node [midway, right, fill=white] {$ \downarrow m_{63} \left( x_{3} \right) $};
+            \draw (x3) -- (x2) node [midway, below, fill=white] {$ \xleftarrow {m_{32} \left( x_{2} \right)} {} $};
+            \draw (x2) -- (x1) node [midway, below, fill=white] {$ \xleftarrow {m_{21} \left( x_{1} \right)} {} $};
+            
+            % Edges
+            
+            \edge[-] {y1} {x1};
+            \edge[-] {y2} {x2};
+            \edge[-] {y3} {x3};
+            \edge[-] {x1} {x2};
+            \edge[-] {x2} {x3};
+            
+        \end{tikzpicture}
+        \caption{Finding $ \Pr \left( X = x_{1} \mid Y \right) $}
+    \end{figure}
 \end{frame}
 \begin{frame}{Belief Propagation}
-    content...
+    \begin{block}{Inside BP}
+        In BP, every iteration is called \alert{belief update (BU)}. In belief update, the message
+        that node $ X $ sends to node $ Y $ is updated as follows:
+        \begin{enumerate}
+            \item Combine all messages coming into $ X $ except for that coming from $ Y $ into a vector $ \vec{v} $. The combination is done by multiplying all the message vectors element by element.
+            \item Multiply $ \vec{v} $ by the matrix $ M_{XY} $ corresponding to the link from $ X $ to $ Y $.
+            \item Normalize the product $ M_{XY}\vec{v} $ so it sums to $ 1 $. The normalized vector is sent to $ Y $.
+        \end{enumerate}
+        The belief vector for a node $ X $ is obtained by combining all incoming messages to $ X $ and normalizing.
+    \end{block}
 \end{frame}
+\begin{frame}{Belief Propagation}
+    \begin{block}{Maximum A-Posteriori (MAP) Assignment Using BP}
+        To find a MAP assignment, we use the algorithm above, with a small change:\\
+        Instead of using matrix multiplication (a sum-of-products), we take the $ \operatorname{argmax} $, giving us a max-of-products.\\
+        This step is called \alert{belief revision (BR)}.
+    \end{block}
+\end{frame}
+
+%%%%%%%%%%%% 1.2 THE PROBLEM %%%%%%%%%%%%
+
 \subsection{The Problem}
-\begin{frame}{Belief Propagation}
-    content...
+\begin{frame}{Breaking Down the Title - Part III}
+    \begin{center}
+        \Large{Correctness of \alert<1>{Local Probability Propagation} in Graphical Models with \alert<2>{Loops}}
+    \end{center}
 \end{frame}
 \begin{frame}{``Loopy'' Belief Propagation}
-    content...
+    \begin{block}{BP on General Graphs}
+        As we have already seen, BP is guaranteed to converge on the exact marginals or MAP assignments given a singly-connected graph.\\
+        What happens when we have loops?
+        \pause
+        \begin{itemize}
+            \item Divergence
+            \item Fluctuations between different values
+            \item Convergence on the wrong values
+        \end{itemize}
+        \pause
+        Theoretically...\\
+        \pause
+        In practice, ``loopy'' BP (LBP) is doing surprisingly well!
+    \end{block}
+\end{frame}
+\section{BP on PGMs with a Single Loop}
+\subsection{Correctness}
+\begin{frame}{Breaking Down the Title - Finale}
+    \begin{center}
+        \Large{\alert<2>{Correctness} of Local Probability Propagation in Graphical Models with \alert<1>{Loops}}
+    \end{center}
 \end{frame}
 \begin{frame}
-    \begin{itemize}
-        \item How far is the steady-state belief from the correct posterior when the update rules (equations 2.7-2.8) are applied in a loopy network?
-        \item What are the conditions under which the BU assignment equals the MM assignment when the update rules are applied in a loopy network?
-        \item What are the conditions under which the BR assignment equals the MAP assignment when the update rules are applied in a loopy network?
-    \end{itemize}
+    \begin{block}{Theory vs. Practice}
+        Although LBP is doing great in some cases, the theoretical problems shown earlier do arise. We wish to know when LBP is guaranteed to converge.\\
+        In his paper, Weiss proves that given a PGM with a single loop, belief revision in LBP will always converge on a correct MAP assignment, and belief update will converge on a marginal that is not the correct marginal, but is closely related to it.
+    \end{block}
 \end{frame}
-\section{Content}
 \begin{frame}
+    \begin{block}{Motivation}
+        The problem with loops is what Weiss refers to as ``double counting'', e.g. given a clique $ G = \left( V = \left\{ u, v, w \right\}, E \right) $, $ u $ would send messages to $ v $ that include $ v $'s prior belief, therefore enforcing $ v $'s belief even more.\\
+        In a graph with a single loop, Weiss shows this ``double counting'' is guaranteed to occur equally among all nodes in the loop, therefore still reaching convergence.
+    \end{block}    
 \end{frame}
 \section{Conclusion}
+\subsection{What Have We Achieved?}
 \begin{frame}
+    \begin{itemize}[<+->]
+        \item We can define a Probabilistic Graphical Model, and name two specific types.
+        \item We know what are prior and posterior probabilities, and how Bayes' theorem connects them.
+        \item We can trace the steps of the Belief Propagation algorithm.
+        \item We are not afraid of phrases such as ``sum-product'', ``max-product'', or ``message-passing''.
+        \item We are aware of three problems that may arise in PGMs with loops...
+        \item ...but we also know that loops are not always a problem in practice.
+        \item We know what to expect when running LBP on a PGM with a single loop.
+    \end{itemize}
+\end{frame}
+\subsection{The End}
+\begin{frame}
+    \begin{center}
+        \Huge{Thank you for your time!}\\~\\
+        \LARGE{Questions?}
+    \end{center}
 \end{frame}
 
 \end{document}
