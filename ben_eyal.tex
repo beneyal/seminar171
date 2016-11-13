@@ -27,13 +27,6 @@
     \titlepage
 \end{frame}
 
-\begin{frame}
-    \begin{block}{Disclaimer}
-        The notation used in this presentation is just one of several.\\
-        In your assigned papers, and other literature you may come across, you will most probably see different notation.\\ Therefore, in this talk, notation will be used sparingly, and always with a definition.
-    \end{block}
-\end{frame}
-
 \begin{frame}{Outline}
     \tableofcontents
 \end{frame}
@@ -56,15 +49,11 @@
         A Probabilistic Graphical Model (PGM) is a graph, either directed or undirected, in which the nodes correspond to random variables,
         and the edges correspond to direct probabilistic interactions between them.
     \end{definition}
-    \pause
-    \begin{block}{Agenda}
-        In this talk, we'll see how to use PGMs for the task of probabilistic inference.
-    \end{block}
 \end{frame}
 \begin{frame}{Probabilistic Graphical Models}
     \pause
     \begin{definition}
-        A Bayes network is a directed acyclic PGM whose edges can be seen as ``cause'' and ``effect'', e.g. an
+        A \textbf{Bayes network} is a directed acyclic PGM whose edges can be seen as ``cause'' and ``effect'', e.g. an
         edge $ X \rightarrow Y $ means that $ X $ directly influences $ Y $, or ``$ X $ is the cause of $ Y $''.
     \end{definition}
     \pause
@@ -75,7 +64,7 @@
 \begin{frame}{Probabilistic Graphical Models}
     \pause
     \begin{definition}
-        A Markov Random Field (MRF), or a Markov network, is an undirected PGM which is used when the relations between
+        A Markov Random Field (MRF), or a \textbf{Markov network}, is an undirected PGM which is used when the relations between
         random variables are symmetric, rather than hierarchical, e.g. pixels in an image.
     \end{definition}
     \pause
@@ -115,7 +104,7 @@
     \end{block}
 \end{frame}
 
-%%%%%%%%%%%% 1.? EXAMPLE? %%%%%%%%%%%%
+%%%%%%%%%%%% MAYBE ADD AN EXAMPLE OF Belief Propagation ON CHAIN? %%%%%%%%%%%%
 
 \begin{frame}{Belief Propagation}
     \begin{definition}
@@ -157,19 +146,20 @@
     \end{figure}
 \end{frame}
 \begin{frame}{Belief Propagation}
-    \begin{block}{Inside BP}
-        In BP, every iteration is called \alert{belief update (BU)}. In belief update, the message
+    \begin{block}{Inside Belief Propagation}
+        In Belief Propagation, every iteration is called \alert{belief update (BU)}. In belief update, the message
         that node $ X $ sends to node $ Y $ is updated as follows:
-        \begin{enumerate}
+        \pause
+        \begin{enumerate}[<+->]
             \item Combine all messages coming into $ X $ except for that coming from $ Y $ into a vector $ \vec{v} $. The combination is done by multiplying all the message vectors element by element.
             \item Multiply $ \vec{v} $ by the matrix $ M_{XY} $ corresponding to the link from $ X $ to $ Y $.
             \item Normalize the product $ M_{XY}\vec{v} $ so it sums to $ 1 $. The normalized vector is sent to $ Y $.
         \end{enumerate}
-        The belief vector for a node $ X $ is obtained by combining all incoming messages to $ X $ and normalizing.
+        \visible<5>{The belief vector for a node $ X $ is obtained by combining all incoming messages to $ X $ and normalizing.}
     \end{block}
 \end{frame}
 \begin{frame}{Belief Propagation}
-    \begin{block}{Maximum A-Posteriori (MAP) Assignment Using BP}
+    \begin{block}{Maximum A-Posteriori (MAP) Assignment Using Belief Propagation}
         To find a MAP assignment, we use the algorithm above, with a small change:\\
         Instead of using matrix multiplication (a sum-of-products), we take the $ \operatorname{argmax} $, giving us a max-of-products.\\
         This step is called \alert{belief revision (BR)}.
@@ -185,22 +175,20 @@
     \end{center}
 \end{frame}
 \begin{frame}{``Loopy'' Belief Propagation}
-    \begin{block}{BP on General Graphs}
-        As we have already seen, BP is guaranteed to converge on the exact marginals or MAP assignments given a singly-connected graph.\\
+    \begin{block}{Belief Propagation on General Graphs}
+        As we have already seen, Belief Propagation is guaranteed to converge on the exact marginals or MAP assignments given a singly-connected graph.\\
         What happens when we have loops?
         \pause
-        \begin{itemize}
+        \begin{itemize}[<+->]
             \item Divergence
             \item Fluctuations between different values
             \item Convergence on the wrong values
         \end{itemize}
-        \pause
-        Theoretically...\\
-        \pause
-        In practice, ``loopy'' BP (LBP) is doing surprisingly well!
+        \visible<5-6>{Theoretically...\\}
+        \visible<6>{In practice, ``loopy'' Belief Propagation is doing surprisingly well!}
     \end{block}
 \end{frame}
-\section{BP on PGMs with a Single Loop}
+\section{Belief Propagation on PGMs with a Single Loop}
 \subsection{Correctness}
 \begin{frame}{Breaking Down the Title - Finale}
     \begin{center}
@@ -209,33 +197,46 @@
 \end{frame}
 \begin{frame}
     \begin{block}{Theory vs. Practice}
-        Although LBP is doing great in some cases, the theoretical problems shown earlier do arise. We wish to know when LBP is guaranteed to converge.\\
-        In his paper, Weiss proves that given a PGM with a single loop, belief revision in LBP will always converge on a correct MAP assignment, and belief update will converge on a marginal that is not the correct marginal, but is closely related to it.
+        Although Loopy Belief Propagation is doing great in some cases, the theoretical problems shown earlier do arise.\\
+        \pause We wish to know when Loopy Belief Propagation is guaranteed to converge.\\
+        \pause In his paper, Weiss proves that given a PGM with a single loop:
+        \pause
+        \begin{itemize}[<+->]
+            \item belief revision in Loopy Belief Propagation will always converge on a correct MAP assignment.
+            \item belief update will converge on a marginal that is not the correct marginal, but is closely related to it.
+        \end{itemize}
     \end{block}
 \end{frame}
 \begin{frame}
     \begin{block}{Motivation}
-        The problem with loops is what Weiss refers to as ``double counting'', e.g. given a clique $ G = \left( V = \left\{ u, v, w \right\}, E \right) $, $ u $ would send messages to $ v $ that include $ v $'s prior belief, therefore enforcing $ v $'s belief even more.\\
+        The problem with loops is what Weiss refers to as ``double counting'':
+        \pause
+        \begin{center}
+            \includegraphics[scale=0.7]{fig}
+        \end{center}
+        \pause
         In a graph with a single loop, Weiss shows this ``double counting'' is guaranteed to occur equally among all nodes in the loop, therefore still reaching convergence.
     \end{block}    
 \end{frame}
 \section{Conclusion}
 \subsection{What Have We Achieved?}
 \begin{frame}
+    \pause
     \begin{itemize}[<+->]
-        \item We can define a Probabilistic Graphical Model, and name two specific types.
+        \item We can define a Probabilistic Graphical Model (PGM), and name two specific types.
         \item We know what are prior and posterior probabilities, and how Bayes' theorem connects them.
         \item We can trace the steps of the Belief Propagation algorithm.
         \item We are not afraid of phrases such as ``sum-product'', ``max-product'', or ``message-passing''.
         \item We are aware of three problems that may arise in PGMs with loops...
         \item ...but we also know that loops are not always a problem in practice.
-        \item We know what to expect when running LBP on a PGM with a single loop.
+        \item We know what to expect when running Loopy Belief Propagation on a PGM with a single loop.
     \end{itemize}
 \end{frame}
 \subsection{The End}
 \begin{frame}
     \begin{center}
         \Huge{Thank you for your time!}\\~\\
+        \pause
         \LARGE{Questions?}
     \end{center}
 \end{frame}
