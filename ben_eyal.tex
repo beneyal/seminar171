@@ -103,18 +103,150 @@
         is the \alert{marginal distribution} of $ X $.
     \end{block}
 \end{frame}
-
-%%%%%%%%%%%% MAYBE ADD AN EXAMPLE OF Belief Propagation ON CHAIN? %%%%%%%%%%%%
-
+\begin{frame}{Belief Propagation}
+    \begin{block}{The Task of Inference}
+        Inference is divided into three subtasks:
+        \pause
+        \begin{itemize}[<+->]
+            \item \emph{Marginalization}: Calculating the marginal probability of a variable given the observed variables -- e.g. $ \Pr \left( C = c \mid \mathcal{O} \right) $.
+            \item \emph{Maximum a posteriori (MAP) assignment}: Finding assignments to the unobserved variables that are most probable given the observed variables -- e.g. finding $ \left( b, c, d, e \right) $ such that $ \Pr \left( B = b, C = c, D = d, E = e \mid \mathcal{O} \right) $ is maximized.
+            \item \emph{Maximum Marginal (MM) assignment}: Finding assignments to the unobserved variables that maximize the marginal probability of the assignment -- e.g. finding $ \left( b, c, d, e \right) $ such that $ \Pr \left( B = b \mid \mathcal{O} \right) $,
+            $ \Pr \left( C = c \mid \mathcal{O} \right) $, $ \Pr \left( D = d \mid \mathcal{O} \right) $, $ \Pr \left( E = e \mid \mathcal{O} \right) $ are all maximized.
+        \end{itemize}
+    \end{block}
+\end{frame}
 \begin{frame}{Belief Propagation}
     \begin{definition}
         Belief Propagation (Pearl, 1982) is an iterative message-passing algorithm used to perform inference on PGMs.\\
         The algorithm gives exact marginals on polytrees (a directed graph with only a single path between any two nodes).
     \end{definition}
+\end{frame}
+\begin{frame}{Example}
     \pause
+    \begin{center}
+        \includegraphics[scale=0.1]{warning}
+    \end{center}
+\end{frame}
+\begin{frame}{Example}
+    \pause
+    We would like to compute the maximum marginal probability $ \Pr \left( X = x_{1} \mid Y \right) $ given the following Markov network:
     \begin{figure}[h]
         \centering
         \begin{tikzpicture}
+        
+        % Nodes
+        
+        \node[obs, label=above:node 4] (y1) {$ y_{1} $};
+        \node[obs, right=2.5 of y1, label=above:node 5] (y2) {$ y_{2} $};
+        \node[obs, right=2.5 of y2, label=above:node 6] (y3) {$ y_{3} $};
+        \node[latent, below=of y1, label=below:node 1] (x1) {$ x_{1} $};
+        \node[latent, right=of x1, below=of y2, label=below:node 2] (x2) {$ x_{2} $};
+        \node[latent, right=of x2, below=of y3, label=below:node 3] (x3) {$ x_{3} $};
+        
+        % Edges
+        
+        \edge[-] {y1} {x1};
+        \edge[-] {y2} {x2};
+        \edge[-] {y3} {x3};
+        \edge[-] {x1} {x2};
+        \edge[-] {x2} {x3};
+        
+        \end{tikzpicture}
+    \end{figure}
+\end{frame}
+\begin{frame}{Example}
+    \pause
+    If we knew nothing about the structure of the joint probability:
+    \[ \Pr \left( X = x_{1} \mid Y \right) = \sum_{x_{2}} \sum_{x_{3}} \Pr \left( x_{1}, x_{2}, x_{3} \mid Y \right) \]
+    \pause
+    This might not look like much, but the time complexity increases exponentially with the number of unobserved variables.\\
+    \pause
+    Did I mention that both exact and approximate inference are hard? \pause As in $ \mathcal{NP} $-hard?
+\end{frame}
+\begin{frame}{Example}
+    Lucky for us, we do know something about the structure of the joint probability! \pause
+    \[
+        {\scriptstyle \Pr \left( x_{1} \mid Y \right) = \frac{1}{\Pr \left( Y \right)}
+        \sum_{x_{2}} \sum_{x_{3}}
+        \phi_{12}\left( x_{1}, x_{2} \right) \phi_{23}\left( x_{2}, x_{3} \right)
+        \psi_{1}\left( y_{1}, x_{1} \right) \psi_{2}\left( y_{2}, x_{2} \right) \psi_{3}\left( y_{3}, x_{3} \right)}
+    \]
+    \pause
+    Do not despair! This is going to be very clear -- very quick.
+\end{frame}
+\begin{frame}{Example}
+    \begin{onlyenv}<1>
+        \[
+            {\scriptstyle \Pr \left( x_{1} \mid Y \right) = \frac{1}{\Pr \left( Y \right)}
+            \sum_{x_{2}} \sum_{x_{3}}
+            \phi_{12}\left( x_{1}, x_{2} \right) \phi_{23}\left( x_{2}, x_{3} \right)
+            \psi_{1}\left( y_{1}, x_{1} \right) \psi_{2}\left( y_{2}, x_{2} \right) \psi_{3}\left( y_{3}, x_{3} \right)}
+        \]
+        \begin{figure}[h]
+            \centering
+            \begin{tikzpicture}
+            
+            % Nodes
+            
+            \node[obs, label=above:node 4] (y1) {$ y_{1} $};
+            \node[obs, right=2.5 of y1, label=above:node 5] (y2) {$ y_{2} $};
+            \node[obs, right=2.5 of y2, label=above:node 6] (y3) {$ y_{3} $};
+            \node[latent, below=of y1, label=below:node 1] (x1) {$ x_{1} $};
+            \node[latent, right=of x1, below=of y2, label=below:node 2] (x2) {$ x_{2} $};
+            \node[latent, right=of x2, below=of y3, label=below:node 3] (x3) {$ x_{3} $};
+            
+            % Edges
+            
+            \edge[-] {y1} {x1};
+            \edge[-] {y2} {x2};
+            \edge[-] {y3} {x3};
+            \edge[-] {x1} {x2};
+            \edge[-] {x2} {x3};
+            
+            \end{tikzpicture}
+        \end{figure}
+    \end{onlyenv}
+    \begin{onlyenv}<2>
+        \[
+            {\scriptstyle \Pr \left( x_{1} \mid Y \right) = \frac{1}{\Pr \left( Y \right)}
+            \psi_{1}\left( y_{1}, x_{1} \right)
+            \sum_{x_{2}} \phi_{12}\left( x_{1}, x_{2} \right) \psi_{2}\left( y_{2}, x_{2} \right)
+            \sum_{x_{3}} \phi_{23}\left( x_{2}, x_{3} \right) \psi_{3}\left( y_{3}, x_{3} \right)}
+        \]
+        \begin{figure}[h]
+            \centering
+            \begin{tikzpicture}
+            
+            % Nodes
+            
+            \node[obs, label=above:node 4] (y1) {$ y_{1} $};
+            \node[obs, right=2.5 of y1, label=above:node 5] (y2) {$ y_{2} $};
+            \node[obs, right=2.5 of y2, label=above:node 6] (y3) {$ y_{3} $};
+            \node[latent, below=of y1, label=below:node 1] (x1) {$ x_{1} $};
+            \node[latent, right=of x1, below=of y2, label=below:node 2] (x2) {$ x_{2} $};
+            \node[latent, right=of x2, below=of y3, label=below:node 3] (x3) {$ x_{3} $};
+            
+            % Edges
+            
+            \edge[-] {y1} {x1};
+            \edge[-] {y2} {x2};
+            \edge[-] {y3} {x3};
+            \edge[-] {x1} {x2};
+            \edge[-] {x2} {x3};
+            
+            \end{tikzpicture}
+        \end{figure}
+    \end{onlyenv}
+    \begin{onlyenv}<3>
+        \[
+            {\scriptstyle \Pr \left( x_{1} \mid Y \right) = \frac{1}{\Pr \left( Y \right)}
+            m_{41}\left( x_{1} \right)
+            \sum_{x_{2}} \phi_{12}\left( x_{1}, x_{2} \right) m_{52}\left( x_{2} \right)
+            \sum_{x_{3}} \phi_{23}\left( x_{2}, x_{3} \right) m_{63}\left( x_{3} \right)}
+        \]
+        \begin{figure}[h]
+            \centering
+            \begin{tikzpicture}
             
             % Nodes
             
@@ -130,8 +262,6 @@
             \draw (y1) -- (x1) node [midway, right, fill=white] {$ \downarrow m_{41} \left( x_{1} \right) $};
             \draw (y2) -- (x2) node [midway, right, fill=white] {$ \downarrow m_{52} \left( x_{2} \right) $};
             \draw (y3) -- (x3) node [midway, right, fill=white] {$ \downarrow m_{63} \left( x_{3} \right) $};
-            \draw (x3) -- (x2) node [midway, below, fill=white] {$ \xleftarrow {m_{32} \left( x_{2} \right)} {} $};
-            \draw (x2) -- (x1) node [midway, below, fill=white] {$ \xleftarrow {m_{21} \left( x_{1} \right)} {} $};
             
             % Edges
             
@@ -141,11 +271,82 @@
             \edge[-] {x1} {x2};
             \edge[-] {x2} {x3};
             
-        \end{tikzpicture}
-        \caption{Finding $ \Pr \left( X = x_{1} \mid Y \right) $}
-    \end{figure}
+            \end{tikzpicture}
+        \end{figure}
+    \end{onlyenv}
+    \begin{onlyenv}<4>
+        \[
+            {\scriptstyle \Pr \left( x_{1} \mid Y \right) = \frac{1}{\Pr \left( Y \right)}
+            m_{41}\left( x_{1} \right)
+            \sum_{x_{2}} \phi_{12}\left( x_{1}, x_{2} \right) m_{52}\left( x_{2} \right) m_{32}\left( x_{2} \right) }
+        \]
+        \begin{figure}[h]
+            \centering
+            \begin{tikzpicture}
+            
+            % Nodes
+            
+            \node[obs, label=above:node 4] (y1) {$ y_{1} $};
+            \node[obs, right=2.5 of y1, label=above:node 5] (y2) {$ y_{2} $};
+            \node[obs, right=2.5 of y2, label=above:node 6] (y3) {$ y_{3} $};
+            \node[latent, below=of y1, label=below:node 1] (x1) {$ x_{1} $};
+            \node[latent, right=of x1, below=of y2, label=below:node 2] (x2) {$ x_{2} $};
+            \node[latent, right=of x2, below=of y3, label=below:node 3] (x3) {$ x_{3} $};
+            
+            % Message Labels
+
+            \draw (y1) -- (x1) node [midway, right, fill=white] {$ \downarrow m_{41} \left( x_{1} \right) $};
+            \draw (y2) -- (x2) node [midway, right, fill=white] {$ \downarrow m_{52} \left( x_{2} \right) $};
+            \draw (x3) -- (x2) node [midway, below, fill=white] {$ \xleftarrow {m_{32} \left( x_{2} \right)} {} $};
+            
+            % Edges
+            
+            \edge[-] {y1} {x1};
+            \edge[-] {y2} {x2};
+            \edge[-] {y3} {x3};
+            \edge[-] {x1} {x2};
+            \edge[-] {x2} {x3};
+            
+            \end{tikzpicture}
+        \end{figure}
+    \end{onlyenv}
+    \begin{onlyenv}<5>
+        \[
+            {\scriptstyle \Pr \left( x_{1} \mid Y \right) = \frac{1}{\Pr \left( Y \right)}
+            m_{41}\left( x_{1} \right) m_{21}\left( x_{1} \right) }
+        \]
+        \begin{figure}[h]
+            \centering
+            \begin{tikzpicture}
+            
+            % Nodes
+            
+            \node[obs, label=above:node 4] (y1) {$ y_{1} $};
+            \node[obs, right=2.5 of y1, label=above:node 5] (y2) {$ y_{2} $};
+            \node[obs, right=2.5 of y2, label=above:node 6] (y3) {$ y_{3} $};
+            \node[latent, below=of y1, label=below:node 1] (x1) {$ x_{1} $};
+            \node[latent, right=of x1, below=of y2, label=below:node 2] (x2) {$ x_{2} $};
+            \node[latent, right=of x2, below=of y3, label=below:node 3] (x3) {$ x_{3} $};
+
+            % Message Labels
+
+            \draw (y1) -- (x1) node [midway, right, fill=white] {$ \downarrow m_{41} \left( x_{1} \right) $};
+            \draw (x2) -- (x1) node [midway, below, fill=white] {$ \xleftarrow {m_{21} \left( x_{1} \right)} {} $};
+
+            % Edges
+            
+            \edge[-] {y1} {x1};
+            \edge[-] {y2} {x2};
+            \edge[-] {y3} {x3};
+            \edge[-] {x1} {x2};
+            \edge[-] {x2} {x3};
+            
+            \end{tikzpicture}
+        \end{figure}
+    \end{onlyenv}
 \end{frame}
 \begin{frame}{Belief Propagation}
+    \pause
     \begin{block}{Inside Belief Propagation}
         In Belief Propagation, every iteration is called \alert{belief update (BU)}. In belief update, the message
         that node $ X $ sends to node $ Y $ is updated as follows:
